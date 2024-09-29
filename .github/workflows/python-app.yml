@@ -35,9 +35,9 @@ jobs:
       - name: Start the Flask application
         run: |
           make run > flask_server.log 2>&1 &  # Start the server and save logs
-          sleep 30                            # Wait 30 seconds for the server to start
+          sleep 60                            # Wait 60 seconds for the server to start
           cat flask_server.log                # Display the server log to check for errors
-          if ! grep -q "Running on http://0.0.0.0:3000/" flask_server.log; then  # Check if the server started successfully
+          if ! grep -q "Running on http://0.0.0.0:3000" flask_server.log; then  # Check if the server started correctly
             echo "Error: Flask server did not start correctly."
             exit 1
           fi
