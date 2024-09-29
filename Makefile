@@ -11,8 +11,8 @@ install:
 # Run the Flask application using flask run
 run:
 	./$(VENV)/bin/pip install flask  # Ensure Flask is installed
-	FLASK_APP=$(FLASK_APP) ./$(VENV)/bin/flask run --host=0.0.0.0 --port=3000
-
+	FLASK_APP=$(FLASK_APP) ./$(VENV)/bin/flask run --host=0.0.0.0 --port=3000 || echo "Error: Failed to start Flask application"
+	
 # Clean up the virtual environment
 clean:
 	rm -rf $(VENV)
