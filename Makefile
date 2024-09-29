@@ -1,20 +1,20 @@
-# Define your virtual environment and Flask app
-VENV = venv
-FLASK_APP = app.py
+# Makefile for setting up and running the Flask web application
 
-# Install dependencies and set up the virtual environment
+# Define the virtual environment directory
+VENV_DIR := venv
+
+# Create and activate the virtual environment, install required dependencies
 install:
-	python3 -m venv $(VENV)              # Create a virtual environment
-	./$(VENV)/bin/pip install --upgrade pip
-	./$(VENV)/bin/pip install -r requirements.txt  # Install all dependencies
+	python3 -m venv $(VENV_DIR)                                       # Create the virtual environment
+	./$(VENV_DIR)/bin/pip install --upgrade pip                        # Upgrade pip
+	./$(VENV_DIR)/bin/pip install Flask                                # Ensure Flask is installed
+	./$(VENV_DIR)/bin/pip install -r requirements.txt                  # Install other dependencies from requirements.txt
 
-# Run the Flask application
+# Run the Flask application inside the virtual environment
 run:
-	./$(VENV)/bin/python $(FLASK_APP)  # Run your Flask app
+	python app.py
+	 ./$(VENV_DIR)/bin/python -m flask run --host=0.0.0.0 --port=3000
 
-# Clean up the virtual environment
+# Clean up: remove the virtual environment
 clean:
-	rm -rf $(VENV)
-
-# Reinstall all dependencies
-reinstall: clean install
+	rm -rf $(VENV_DIR)
