@@ -2,16 +2,25 @@
 document.getElementById('generate-data').addEventListener('click', generateDataset);
 document.getElementById('converge').addEventListener('click', goToConvergence);
 document.getElementById('reset').addEventListener('click', reset);
-document.getElementById('init-method').addEventListener('change', setInitializationMethod);
 document.getElementById('num-clusters').addEventListener('change', updateNumClusters);
+document.getElementById('init-method').addEventListener('change', setInitializationMethod);
+
 
 let dataPoints = [];
 let centroids = [];
 let k = parseInt(document.getElementById('num-clusters').value);  // Initialize k with the input value
 
-// Update k when the user changes the input value
+// Function to update the number of clusters (k) and handle manual centroid selection warnings
 function updateNumClusters() {
     k = parseInt(document.getElementById('num-clusters').value);
+
+    // Check the current initialization method
+    const method = document.getElementById('init-method').value;
+
+    // For other methods, reinitialize centroids
+    if (method !== 'manual') {
+        setInitializationMethod();
+    }
 }
 
 // Generate random dataset on page load
@@ -40,36 +49,45 @@ function generateDataset() {
         .catch(error => console.error('Error fetching dataset:', error));
 }
 
-// Set the chosen initialization method
 function setInitializationMethod() {
     const method = document.getElementById('init-method').value;
-    const k = parseInt(document.getElementById('num-clusters').value); // Ensure we use the updated number of clusters
+    k = parseInt(document.getElementById('num-clusters').value);
 
-    centroids = [];
+    centroids = []; // Reset centroids
 
     if (method === 'random') {
+        // Random initialization
         for (let i = 0; i < k; i++) {
             const randomPoint = dataPoints[Math.floor(Math.random() * dataPoints.length)];
             centroids.push({ x: randomPoint.x, y: randomPoint.y });
         }
     } else if (method === 'kmeans++') {
-        initializeKMeansPlusPlus(k)
+        initializeKMeansPlusPlus(k);
     } else if (method === 'farthest') {
-        initializeFarthestFirst(k)
+        initializeFarthestFirst(k);
     } else if (method === 'manual') {
-        addManualCentroidSelection()
+        addManualCentroidSelection(); // Allow manual centroid selection
     }
 
-    visualizeData(); // Always visualize the updated centroids
+    visualizeData(); // Visualize the data and centroids
 }
 
-// Allow manual selection of centroids
+
 function addManualCentroidSelection() {
-    const svg = d3.select("#plot-area").on("click", function(event) {
-        const [x, y] = d3.pointer(event);
-        if (centroids.length < k) {
-            centroids.push({ x, y });
-            visualizeData();
+    const svg = d3.select("svg");
+
+    svg.on("click", function (event) {
+        if (document.getElementById('init-method').value === 'manual') {
+            // Capture click coordinates relative to the SVG container
+            const [x, y] = d3.pointer(event, svg.node());
+
+            // Only add the centroid if the user hasn't selected the required number of centroids
+            if (centroids.length < k) {
+                centroids.push({ x: x, y: y });
+                visualizeData(); // Update visualization to show the new centroid
+            }
+
+            // Do nothing if the correct number of centroids is reached
         }
     });
 }
@@ -140,6 +158,12 @@ const maxIterations = 100; // Maximum iterations to avoid infinite loops
 let hasConverged = false;  // Flag to check for convergence
 
 function stepThrough() {
+     // Check if we're in manual mode and not enough centroids have been selected
+     if (document.getElementById('init-method').value === 'manual' && centroids.length < k) {
+        alert(`You have selected ${centroids.length} centroids, but ${k} centroids are required. Please select the remaining centroids.`);
+        return;
+    }
+
     if (hasConverged) {
         alert("KMeans algorithm has already reached convergence.");
         return;
@@ -204,6 +228,11 @@ function stepThrough() {
 document.getElementById('step-through').addEventListener('click', stepThrough);
 
 function goToConvergence() {
+    if (document.getElementById('init-method').value === 'manual' && centroids.length < k) {
+        alert(`You have selected ${centroids.length} centroids, but ${k} centroids are required. Please select the remaining centroids.`);
+        return;
+    }
+    
     console.log("Running KMeans to convergence...");
 
     let iteration = 0;
