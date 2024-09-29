@@ -2,3 +2,5 @@ flask
 numpy
 scikit-learn
 pillow
+flask
+flask_cors
