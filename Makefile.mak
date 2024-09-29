@@ -8,9 +8,10 @@ install:
 	./$(VENV)/bin/pip install --upgrade pip
 	./$(VENV)/bin/pip install -r requirements.txt
 
-# Run the Flask application
+# Run the Flask application using flask run
 run:
-	./$(VENV)/bin/python $(FLASK_APP)
+	./$(VENV)/bin/pip install flask  # Ensure Flask is installed
+	FLASK_APP=$(FLASK_APP) ./$(VENV)/bin/flask run --host=0.0.0.0 --port=3000
 
 # Clean up the virtual environment
 clean:
