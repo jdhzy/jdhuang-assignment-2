@@ -31,12 +31,13 @@ jobs:
       - name: Install dependencies using Makefile
         run: make install
 
-      # Step 4: Run the application using the Makefile
+      # Step 4: Run the Flask application and capture logs
       - name: Start the Flask application
         run: |
-          make run &
-          sleep 10  # Sleep to allow the server time to start
+          make run > flask_server.log 2>&1 &  # Start the server and save logs
+          sleep 30                            # Wait 30 seconds for the server to start
+          cat flask_server.log                # Display the server log to check for errors
 
       # Step 5: Verify that the server is running
       - name: Verify the server is running
-        run: curl http://localhost:3000 || exit 1
+        run: curl http://localhost:3000 || exit 1  # Check if the server is accessible
